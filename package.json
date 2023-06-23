@@ -1,0 +1,26 @@
+{
+  "name": "monorepo.base.idevit.app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "plop": "^3.1.2",
+    "turbo": "^1.6.3"
+  },
+  "scripts": {
+    "docker:dev:up": "docker compose up db redis -d",
+    "dev": "turbo dev",
+    "prestart:api": "yarn workspace @apps/api prisma db push",
+    "start:api": "yarn workspace @apps/api node dist/http/index.js",
+    "build:api": "turbo build --filter @apps/api",
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf {} + && rm -rf yarn.lock",
+    "db:generate": "yarn workspace @apps/api prisma db generate",
+    "db:push": "yarn workspace @apps/api prisma db push",
+    "make:usecase": "yarn plop make:usecase"
+  }
+}

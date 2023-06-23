@@ -1,0 +1,35 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "jsx": false,
+      "dynamicImport": true,
+      "privateMethod": true,
+      "functionBind": false,
+      "exportDefaultFrom": false,
+      "exportNamespaceFrom": false,
+      "decorators": true,
+      "decoratorsBeforeExport": false,
+      "topLevelAwait": false,
+      "importMeta": false,
+      "preserveAllComments": false
+    },
+    "transform": null,
+    "target": "es2022",
+    "loose": false,
+    "externalHelpers": false,
+    "keepClassNames": false,
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "isModule": true,
+  "sourceMaps": true,
+  "inlineSourcesContent": true,
+  "module": {
+    "type": "commonjs"
+  }
+}

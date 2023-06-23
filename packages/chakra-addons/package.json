@@ -1,0 +1,22 @@
+{
+  "name": "@packages/chakra-addons",
+  "version": "1.0.0",
+  "main": "./src/index.tsx",
+  "dependencies": {
+    "react-hook-form": "^7.43.3",
+    "@packages/forms": "*"
+  },
+  "devDependencies": {
+    "@chakra-ui/react": "^2.5.1",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "framer-motion": "^10.0.1",
+    "react": "^18.2.0",
+    "@packages/forms": "*",
+    "react-dom": "^18.2.0",
+    "typescript": "^4.9.3"
+  }
+}

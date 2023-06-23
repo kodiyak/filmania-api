@@ -1,0 +1,13 @@
+import { DispatcherService } from "@/modules/shared";
+import { {{commandName}} } from "../commands/{{commandFilename}}";
+
+export class {{useCaseName}} {
+  constructor(
+    private readonly dispatcher: DispatcherService,
+  ) {}
+
+  public async {{useCaseMethod}}(command: {{commandName}}) {
+    const {} = command.props;
+    return {};
+  }
+}

@@ -1,0 +1,26 @@
+import { onRequestErrorHandle } from "@/http/errors/onRequestError";
+import { RequestHandler } from "express";
+import { {{commandName}} } from "../commands/{{commandFilename}}";
+import { {{useCaseName}} } from "../use-cases/{{useCaseFilename}}";
+
+export class {{controllerName}} {
+  constructor(private readonly {{useCaseVariable}}: {{useCaseName}}) {}
+
+  public {{controllerMethod}}: RequestHandler = async (req, res) => {
+    try {
+      const {} = req.params;
+      const {} = req.body;
+      const command = new {{commandName}}({
+
+      });
+
+      const result = await this.{{useCaseVariable}}.{{useCaseMethod}}(command);
+
+      res.json({
+        data: result,
+      });
+    } catch (error) {
+      onRequestErrorHandle(req, res, error);
+    }
+  };
+}

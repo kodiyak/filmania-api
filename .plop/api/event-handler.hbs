@@ -1,0 +1,14 @@
+import { DomainEventHandler } from "@/modules/shared/events/domain-event-handler";
+import { {{eventName}} } from "./{{eventFilename}}";
+
+export class {{eventHandlerName}}
+  implements DomainEventHandler<{{eventName}}>
+{
+  public async handler(event: {{eventName}}): Promise<void> {
+    // console.log(
+    //   "{{eventName}}",
+    //   event.constructor.name,
+    //   event.props
+    // );
+  }
+}

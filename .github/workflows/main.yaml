@@ -1,0 +1,104 @@
+name: Run Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  server-setup:
+    name: "Setup Server"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Connect with server
+        run: |
+          ssh -o ControlPersist=3600 ${{ vars.USER }}@${{ vars.HOST }}
+
+      - name: Configure Deploy Directory
+        run: |
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && rm -rf .env.api .env.consumers docker-compose.yaml images scripts"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/scripts/api"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/scripts/consumers"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/images"
+
+      - name: Send Scripts
+        run: |
+          scp docker-compose.yaml ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}
+          scp -r apps/api/scripts ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/scripts/api
+          scp -r apps/consumers/scripts ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/scripts/consumers
+
+      - name: Configure Env
+        run: |
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && echo '${{ vars.ENV_API }}' > .env.api"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && echo '${{ vars.ENV_CONSUMERS }}' > .env.consumers"
+
+      - name: Setup VPS and NGINX
+        run: |
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/api/scripts/server/setup-vps.bash"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/api/scripts/server/setup-nginx.bash"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/consumers/scripts/server/setup-vps.bash"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/consumers/scripts/server/setup-nginx.bash"
+
+  deploy-api:
+    name: "Build API"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Image
+        run: |
+          docker compose -f docker-compose.build.yaml build api
+
+      - name: Export images to TAR
+        run: |
+          mkdir -p exported_images
+          docker save api-filmania-tv-api:latest -o exported_images/api.tar
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Upload Image
+        run: |
+          scp exported_images/api.tar ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/images/api.tar
+          # ssh ${{ vars.USER }}@${{ vars.HOST }} "docker system prune -f"
+
+  up:
+    name: "Docker UP"
+    runs-on: ubuntu-latest
+    needs: [deploy-api, server-setup]
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Run Docker Compose UP
+        run: |
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker load -i images/api.tar"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker load -i images/consumers.tar"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose up -d"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && service nginx restart"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && service nginx reload"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && sleep 10"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose logs api consumers"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose ps"
+          ssh ${{ vars.USER }}@${{ vars.HOST }} "docker system prune -f"
