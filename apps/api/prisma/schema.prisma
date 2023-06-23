@@ -9,3 +9,40 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Show {
+  id       String   @id @default(uuid())
+  name     String
+  type     String
+  synopsis String?  @db.Text
+  poster   String?
+  cover    String?
+  rating   Float?
+  runtime  Int?
+  imdbId   String?
+  tmdbId   String?
+  infrazId String?
+  seasons  Season[]
+}
+
+model Season {
+  id       String    @id @default(uuid())
+  number   Int
+  showId   String
+  overview String?
+  airDate  DateTime?
+  show     Show      @relation(fields: [showId], references: [id])
+  episodes Episode[]
+}
+
+model Episode {
+  id       String    @id @default(uuid())
+  number   Int
+  name     String?
+  synopsis String?
+  airDate  DateTime?
+  runtime  Int?
+  seasonId String
+  season   Season    @relation(fields: [seasonId], references: [id])
+  infrazId String?
+}
