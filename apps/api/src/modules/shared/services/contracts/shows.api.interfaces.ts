@@ -342,3 +342,208 @@ export namespace IShowsEpisodeApi {
     season: string;
   }
 }
+
+export namespace IShowsMovieApi {
+  export interface Root {
+    data: Data;
+  }
+
+  export interface Data {
+    infraz: Infraz;
+    tmdb: Tmdb;
+    warez: Warez;
+  }
+
+  export interface Infraz {
+    info: Info;
+    movie_data: MovieData;
+  }
+
+  export interface Info {
+    kinopoisk_url: string;
+    tmdb_id: string;
+    name: string;
+    o_name: string;
+    cover_big: string;
+    movie_image: string;
+    releasedate: string;
+    episode_run_time: string;
+    youtube_trailer: string;
+    director: string;
+    actors: string;
+    cast: string;
+    description: string;
+    plot: string;
+    age: string;
+    mpaa_rating: string;
+    rating_count_kinopoisk: number;
+    country: string;
+    genre: string;
+    backdrop_path: string[];
+    duration_secs: number;
+    duration: string;
+    video: any[];
+    audio: any[];
+    bitrate: number;
+    rating: string;
+  }
+
+  export interface MovieData {
+    stream_id: number;
+    name: string;
+    added: string;
+    category_id: string;
+    container_extension: string;
+    custom_sid: string;
+    direct_source: string;
+  }
+
+  export interface Tmdb {
+    adult: boolean;
+    backdrop_path: string;
+    belongs_to_collection: BelongsToCollection;
+    budget: number;
+    genres: Genre[];
+    homepage: string;
+    id: number;
+    imdb_id: string;
+    original_language: string;
+    original_title: string;
+    overview: string;
+    popularity: number;
+    poster_path: string;
+    production_companies: ProductionCompany[];
+    production_countries: ProductionCountry[];
+    release_date: string;
+    revenue: number;
+    runtime: number;
+    spoken_languages: SpokenLanguage[];
+    status: string;
+    tagline: string;
+    title: string;
+    video: boolean;
+    vote_average: number;
+    vote_count: number;
+    videos: Videos;
+    images: Images;
+    credits: Credits;
+    keywords: Keywords;
+    _images: Images2;
+    media_type: string;
+  }
+
+  export interface BelongsToCollection {
+    id: number;
+    name: string;
+    poster_path: string;
+    backdrop_path: string;
+  }
+
+  export interface Genre {
+    id: number;
+    name: string;
+  }
+
+  export interface ProductionCompany {
+    id: number;
+    logo_path: string;
+    name: string;
+    origin_country: string;
+  }
+
+  export interface ProductionCountry {
+    iso_3166_1: string;
+    name: string;
+  }
+
+  export interface SpokenLanguage {
+    english_name: string;
+    iso_639_1: string;
+    name: string;
+  }
+
+  export interface Videos {
+    results: Result[];
+  }
+
+  export interface Result {
+    iso_639_1: string;
+    iso_3166_1: string;
+    name: string;
+    key: string;
+    site: string;
+    size: number;
+    type: string;
+    official: boolean;
+    published_at: string;
+    id: string;
+  }
+
+  export interface Images {
+    backdrops: any[];
+    logos: any[];
+    posters: any[];
+  }
+
+  export interface Credits {
+    cast: Cast[];
+    crew: Crew[];
+  }
+
+  export interface Cast {
+    adult: boolean;
+    gender: number;
+    id: number;
+    known_for_department: string;
+    name: string;
+    original_name: string;
+    popularity: number;
+    profile_path?: string;
+    cast_id: number;
+    character: string;
+    credit_id: string;
+    order: number;
+  }
+
+  export interface Crew {
+    adult: boolean;
+    gender: number;
+    id: number;
+    known_for_department: string;
+    name: string;
+    original_name: string;
+    popularity: number;
+    profile_path?: string;
+    credit_id: string;
+    department: string;
+    job: string;
+  }
+
+  export interface Keywords {
+    keywords: Keyword[];
+  }
+
+  export interface Keyword {
+    id: number;
+    name: string;
+  }
+
+  export interface Images2 {
+    covers: string[];
+    posters: string[];
+    logos: string[];
+  }
+
+  export interface Warez {
+    id: string;
+    sources: Source[];
+    seasons: any[];
+  }
+
+  export interface Source {
+    lang: string;
+    url: string;
+    subtitleLang?: string;
+    subtitleUrl?: string;
+  }
+}

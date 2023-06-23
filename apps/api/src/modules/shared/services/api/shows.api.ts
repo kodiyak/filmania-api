@@ -1,5 +1,9 @@
 import axios from "axios";
-import { IShowsApi, IShowsEpisodeApi } from "../contracts/shows.api.interfaces";
+import {
+  IShowsApi,
+  IShowsEpisodeApi,
+  IShowsMovieApi,
+} from "../contracts/shows.api.interfaces";
 
 export class ShowsApi {
   public consumersHttp = axios.create({
@@ -9,6 +13,12 @@ export class ShowsApi {
   public async getShowByImdbId(imdbId: string) {
     return this.consumersHttp
       .get<IShowsApi.Root>(`/shows/${imdbId}`)
+      .then((res) => res.data.data);
+  }
+
+  public async getShowMovieByImdbId(imdbId: string) {
+    return this.consumersHttp
+      .get<IShowsMovieApi.Root>(`/shows/${imdbId}`)
       .then((res) => res.data.data);
   }
 

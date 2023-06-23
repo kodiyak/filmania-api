@@ -1,6 +1,7 @@
 import { DispatcherService } from "./events/dispatcher";
 import { InfrazApi } from "./services/api/infraz.api";
 import { ShowsApi } from "./services/api/shows.api";
+import { TmdbApi } from "./services/api/tmdb.api";
 import { WarezApi } from "./services/api/warez.api";
 import { BrowserHelperService } from "./services/helpers/browser-helper.service";
 import { CacheHelperService } from "./services/helpers/cache-helper.service";
@@ -13,6 +14,10 @@ export const makeBrowserHelperService = () => {
 
 export const makeCacheHelperService = () => {
   return new CacheHelperService();
+};
+
+export const makeTmdbApi = () => {
+  return new TmdbApi();
 };
 
 export const makeShowsApi = () => {

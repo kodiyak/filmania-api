@@ -1,11 +1,15 @@
 import { db } from "@/lib/db";
 import { ShowsApi } from "@/modules/shared/services/api/shows.api";
+import { TmdbApi } from "@/modules/shared/services/api/tmdb.api";
 import { IShowsApi } from "@/modules/shared/services/contracts/shows.api.interfaces";
 import { Episode, Season, Show } from "@prisma/client";
 import kebabCase from "lodash.kebabcase";
 
 export class SyncSerieService {
-  constructor(private readonly showsApi: ShowsApi) {}
+  constructor(
+    private readonly showsApi: ShowsApi,
+    private readonly tmdbApi: TmdbApi
+  ) {}
 
   public async byImdbId(imdbId: string) {
     const data = await this.showsApi.getShowByImdbId(imdbId);
@@ -78,15 +82,30 @@ export class SyncSerieService {
         show: {
           select: {
             imdbId: true,
+            tmdbId: true,
+            type: true,
           },
         },
       },
     });
-    const episodeData = await this.showsApi.getShowEpisodeByImdbId(
-      show.imdbId!,
+    const seasonData = await this.tmdbApi.findSeason(
+      show.tmdbId!,
       seasonNumber,
-      episodeNumber
+      "pt-BR"
     );
+
+    if (!seasonData || !seasonData.episodes) {
+      throw new Error(`Tmdb Season ${seasonNumber} not found`);
+    }
+
+    const episodeData = seasonData.episodes.find(
+      (v) => v.episode_number === episodeNumber
+    );
+
+    if (!episodeData) {
+      throw new Error(`Tmdb Episode ${episodeNumber} not found`);
+    }
+
     const { id: episodeId } = await db.episode
       .findFirstOrThrow({
         where: {
@@ -108,13 +127,12 @@ export class SyncSerieService {
     const episode = await db.episode.update({
       where: { id: episodeId },
       data: {
-        airDate: episodeData.tmdb.air_date
-          ? new Date(episodeData.tmdb.air_date)
+        name: episodeData.name,
+        airDate: episodeData.air_date
+          ? new Date(episodeData.air_date)
           : undefined,
-        runtime: episodeData.tmdb.runtime
-          ? Number(episodeData.tmdb.runtime)
-          : undefined,
-        synopsis: episodeData.tmdb.overview,
+        runtime: episodeData.runtime ? Number(episodeData.runtime) : undefined,
+        synopsis: episodeData.overview,
       },
     });
 
@@ -146,6 +164,9 @@ export class SyncSerieService {
       data: {
         cover: data.tmdb._images.covers[0],
         poster: data.tmdb._images.posters[0],
+        runtime: data.tmdb.episode_run_time?.[0]
+          ? data.tmdb.episode_run_time?.[0]
+          : undefined,
         imdbId,
         tmdbId: `${data.tmdb.id}`,
         infrazId: undefined,
