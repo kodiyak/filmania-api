@@ -4,6 +4,7 @@ import { ShowsApi } from "@/modules/shared/services/api/shows.api";
 import { TmdbApi } from "@/modules/shared/services/api/tmdb.api";
 import { IShowsApi } from "@/modules/shared/services/contracts/shows.api.interfaces";
 import { Episode, Season, Show } from "@prisma/client";
+import { Collection } from "collect.js";
 import kebabCase from "lodash.kebabcase";
 
 export class SyncSerieService {
@@ -219,7 +220,15 @@ export class SyncSerieService {
     const seasonsInfraz =
       data.infraz?.seasons.map((v) => v.season_number) || [];
 
-    const seasons = [...seasonsWarez, ...seasonsInfraz];
+    const seasons = new Collection([...seasonsWarez, ...seasonsInfraz])
+      .unique()
+      .toArray<number>();
+
+    logger.info(
+      `Saving Seasons: "${
+        data.tmdb.name || data.tmdb.original_name || data.tmdb.id
+      }" - ${seasons.length}`
+    );
 
     for (const seasonNumber of seasons) {
       await this.saveSeason(showId, seasonNumber, data).catch(() => {
