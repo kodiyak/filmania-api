@@ -42,6 +42,7 @@ export class LoadShowSeasons {
         episodes: season.episodes.map((episode) => ({
           ...EpisodeMapper.toListPresentation({
             episodeNumber: episode.number,
+            seasonNumber: season.number,
             name: episode.name,
             airDate: episode.airDate,
             poster: this.app.withApiUrl(

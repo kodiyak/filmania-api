@@ -45,11 +45,19 @@ export class LoadShows {
       })
       .then((shows) => {
         return shows.map((show) => {
-          return ShowMapper.toPresentation(show, {
-            seasonCount: show.seasons.length,
-            episodeCount: show.seasons.reduce((acc, season) => {
-              return acc + season._count.episodes;
-            }, 0),
+          return ShowMapper.toListPresentation({
+            slug: show.slug,
+            title: show.name,
+            runtime: show.runtime,
+            type: show.type,
+            seasonsCount:
+              show.type !== "movie" ? show.seasons.length : undefined,
+            episodesCount:
+              show.type !== "movie"
+                ? show.seasons.reduce((acc, season) => {
+                    return acc + season._count.episodes;
+                  }, 0)
+                : undefined,
           });
         });
       });

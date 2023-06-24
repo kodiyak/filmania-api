@@ -1,20 +1,26 @@
-import { Show } from "@prisma/client";
-
 export class ShowMapper {
-  public static toPresentation(
-    show: Show,
-    additionals?: {
-      seasonCount?: number;
-      episodeCount?: number;
-    }
-  ) {
+  public static toListPresentation({
+    slug,
+    title,
+    episodesCount,
+    runtime,
+    seasonsCount,
+    type,
+  }: {
+    slug: string;
+    title: string;
+    runtime?: number;
+    type?: string;
+    episodesCount?: number;
+    seasonsCount?: number;
+  }) {
     return {
-      slug: show.slug,
-      title: show.name,
-      runtime: show.runtime,
-      type: show.type,
-      episodesCount: additionals?.episodeCount,
-      seasonsCount: additionals?.seasonCount,
+      slug,
+      title,
+      runtime,
+      type,
+      episodesCount,
+      seasonsCount,
     };
   }
 }
