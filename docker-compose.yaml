@@ -6,7 +6,7 @@ services:
     env_file:
       - ./.env.api
     ports:
-      - 3000:3000
+      - 7700:3000
     networks:
       - app_network
     restart: always
