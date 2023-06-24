@@ -55,7 +55,7 @@ export class SyncSerieService {
       select: { number: true },
     });
 
-    const infrazEpisodes =
+    let infrazEpisodes: number[] =
       data.infraz?.episodes[`${number}`]?.map((v) => {
         return Number(v.episode_num);
       }) || [];
@@ -63,14 +63,42 @@ export class SyncSerieService {
     const warezEpisodes =
       data.warez?.seasons
         .find((v) => v.season === number)
-        .videos.map((v) => {
+        ?.videos.map((v) => {
           return Number(v.name);
         }) || [];
+
+    logger.info(`Season ${number}: Warez ${warezEpisodes.length} episodes`);
+    logger.info(`Season ${number}: Infraz ${infrazEpisodes.length} episodes`);
+
+    if (infrazEpisodes.length > warezEpisodes.length) {
+      infrazEpisodes = [];
+    }
+
+    if (
+      data.infraz &&
+      infrazEpisodes.length <= 0 &&
+      warezEpisodes.length > 0 &&
+      data.infraz.episodes?.["1"]
+    ) {
+      infrazEpisodes = warezEpisodes
+        .map((episodeNumber) => {
+          return data.infraz.episodes["1"].find((v) => {
+            return Number(v.episode_num) === episodeNumber;
+          });
+        })
+        .map((v) => v.episode_num)
+        .filter((v) => !!v);
+      logger.info(
+        `Season ${number}: New Infraz ${infrazEpisodes.length} episodes`
+      );
+    }
 
     const episodes = [...infrazEpisodes, ...warezEpisodes];
 
     for (const episodeNumber of episodes) {
-      await this.saveEpisode(seasonId, episodeNumber);
+      await this.saveEpisode(seasonId, episodeNumber).catch(() => {
+        logger.error(`Season ${number}: Episode ${episodeNumber} not found`);
+      });
     }
   }
 
@@ -194,7 +222,9 @@ export class SyncSerieService {
     const seasons = [...seasonsWarez, ...seasonsInfraz];
 
     for (const seasonNumber of seasons) {
-      await this.saveSeason(showId, seasonNumber, data);
+      await this.saveSeason(showId, seasonNumber, data).catch(() => {
+        logger.error(`Season ${seasonNumber} not found`);
+      });
     }
   }
 

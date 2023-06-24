@@ -12,12 +12,13 @@ export const sync_shows_slugs = new Bull<JobProps>("sync_shows_slugs", {
     removeOnComplete: true,
     removeOnFail: true,
     repeat: {
-      cron: "*/10 * * * *",
+      every: 1000 * 60 * 1,
+      // limit: 1,
     },
   },
 });
 
-sync_shows_slugs.process(async (job, done) => {
+sync_shows_slugs.process(1, async (job, done) => {
   const {} = job.data;
 
   try {
