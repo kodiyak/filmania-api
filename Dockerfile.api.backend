@@ -7,7 +7,7 @@ RUN yarn
 
 COPY . .
 
-RUN yarn turbo prune --scope @apps/consumers --docker
+RUN yarn turbo prune --scope @apps/api --docker
 
 FROM node:18-alpine3.17 as build
 WORKDIR /usr/src/app
