@@ -1,8 +1,16 @@
-name: Run Deploy
+name: Run Deploy (Production)
 
 on:
   push:
     branches: [main]
+    paths: ["apps/api/**", "apps/consumers/**", ".github/workflows/**"]
+
+env:
+  ENV_API: ${{ vars.ENV }}
+  HOST: ${{ vars.HOST }}
+  USER: ${{ vars.USER }}
+  SERVER_DIRECTORY: ${{ vars.SERVER_DIRECTORY }}
+  API_IMAGE_NAME: "filmania-api"
 
 jobs:
   server-setup:
@@ -12,43 +20,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
-
+          ssh-keyscan -t rsa ${{ env.HOST }} >> ~/.ssh/known_hosts
       - name: Connect with server
         run: |
-          ssh -o ControlPersist=3600 ${{ vars.USER }}@${{ vars.HOST }}
-
+          ssh -o ControlPersist=3600 ${{ env.USER }}@${{ env.HOST }}
       - name: Configure Deploy Directory
         run: |
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && rm -rf .env.api .env.consumers docker-compose.yaml images scripts"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/scripts/api"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/scripts/consumers"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "mkdir -p ${{ vars.SERVER_DIRECTORY }}/images"
-
+          ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && rm -rf .env.consumers docker-compose.yaml images scripts"
+          ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}/scripts/api"
+          ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}/images"
       - name: Send Scripts
         run: |
-          scp docker-compose.yaml ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}
-          scp -r apps/api/scripts ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/scripts/api
-          scp -r apps/consumers/scripts ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/scripts/consumers
-
-      - name: Configure Env
-        run: |
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && echo '${{ vars.ENV_API }}' > .env.api"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && echo '${{ vars.ENV_CONSUMERS }}' > .env.consumers"
-
+          scp docker-compose.yaml ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}
+          scp -r apps/consumers/scripts/production/* ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}/scripts/api
       - name: Setup VPS and NGINX
         run: |
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/api/scripts/server/setup-vps.bash"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/api/scripts/server/setup-nginx.bash"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/consumers/scripts/server/setup-vps.bash"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "bash ${{ vars.SERVER_DIRECTORY }}/scripts/consumers/scripts/server/setup-nginx.bash"
+          ssh ${{ env.USER }}@${{ env.HOST }} "bash ${{ env.SERVER_DIRECTORY }}/scripts/api/server/setup-vps.bash"
+          ssh ${{ env.USER }}@${{ env.HOST }} "bash ${{ env.SERVER_DIRECTORY }}/scripts/api/server/setup-nginx.bash"
 
   deploy-api:
     name: "Build API"
@@ -57,27 +51,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Build Image
         run: |
-          docker compose -f docker-compose.build.yaml build api
-
+          echo "${{ env.ENV_API }}" > apps/api/.env
+          docker compose -f docker-compose.build.yaml build consumers
       - name: Export images to TAR
         run: |
           mkdir -p exported_images
-          docker save api-filmania-tv-api:latest -o exported_images/api.tar
-
+          docker save ${{ env.API_IMAGE_NAME }}:latest -o exported_images/api.tar
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
-
+          ssh-keyscan -t rsa ${{ env.HOST }} >> ~/.ssh/known_hosts
       - name: Upload Image
         run: |
-          scp exported_images/api.tar ${{ vars.USER }}@${{ vars.HOST }}:${{ vars.SERVER_DIRECTORY }}/images/api.tar
-          # ssh ${{ vars.USER }}@${{ vars.HOST }} "docker system prune -f"
+          scp exported_images/api.tar ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}/images/api.tar
+          # ssh ${{ env.USER }}@${{ env.HOST }} "docker system prune -f"
 
   up:
     name: "Docker UP"
@@ -89,16 +80,17 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa ${{ vars.HOST }} >> ~/.ssh/known_hosts
-
+          ssh-keyscan -t rsa ${{ env.HOST }} >> ~/.ssh/known_hosts
+      - name: Configure Env
+        run: |
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && echo '${{ env.ENV_API }}' > .env.consumers"
       - name: Run Docker Compose UP
         run: |
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker load -i images/api.tar"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker load -i images/consumers.tar"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose up -d"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && service nginx restart"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && service nginx reload"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && sleep 10"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose logs api consumers"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "cd ${{ vars.SERVER_DIRECTORY }} && docker compose ps"
-          ssh ${{ vars.USER }}@${{ vars.HOST }} "docker system prune -f"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker load -i images/api.tar"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose up -d --remove-orphans"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && service nginx restart"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && service nginx reload"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && sleep 10"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose logs consumers"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose ps"
+          ssh ${{ env.USER }}@${{ env.HOST }} "docker system prune -f"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-domain="api.v2.filmania.tv"
-app_path="/root/apps/api-filmania-tv/scripts/api/scripts/nginx"
+domain="api.v3.filmania.tv"
+app_path="/root/apps/api-filmania-tv_v2/scripts/api/nginx"
 
 echo ${domain}
 echo ${app_path}

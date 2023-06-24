@@ -1,6 +1,4 @@
 FROM node:18-alpine3.17 as prune
-
-RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -9,24 +7,30 @@ RUN yarn
 
 COPY . .
 
-RUN yarn turbo prune --scope @apps/api --docker
-RUN rm -rf /usr/src/app/node_modules
+RUN yarn turbo prune --scope @apps/consumers --docker
 
-FROM node:18-alpine3.17 as production
-
-RUN mkdir -p /usr/src/app
+FROM node:18-alpine3.17 as build
 WORKDIR /usr/src/app
 
 COPY --from=prune /usr/src/app/out/json/ /usr/src/app/
 
-RUN yarn
+RUN apk add --no-cache git && yarn
 
 COPY . .
 
-RUN yarn build:api
+RUN yarn build:api && \
+  yarn workspace @apps/api prisma generate
 
-RUN yarn workspace @apps/api prisma generate
+FROM node:18-alpine3.17 as production
+WORKDIR /usr/src/app
 
-COPY ./index.js .
+COPY --from=build /usr/src/app/node_modules/.bin /usr/src/app/node_modules/.bin
+COPY --from=build /usr/src/app/node_modules/.prisma /usr/src/app/node_modules/.prisma
+COPY --from=build /usr/src/app/apps /usr/src/app/apps
+COPY --from=build /usr/src/app/package.json /usr/src/app/yarn.lock /usr/src/app/
+COPY --from=build /usr/src/app/packages /usr/src/app/packages
+
+RUN apk add --no-cache git && \
+  yarn install --production --freeze-lockfile && yarn cache clean
 
 CMD ["yarn", "start:api"]

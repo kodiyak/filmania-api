@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { ShowsApi } from "@/modules/shared/services/api/shows.api";
 import { TmdbApi } from "@/modules/shared/services/api/tmdb.api";
 import { IShowsApi } from "@/modules/shared/services/contracts/shows.api.interfaces";
@@ -54,15 +55,17 @@ export class SyncSerieService {
       select: { number: true },
     });
 
-    const infrazEpisodes = data.infraz?.episodes[`${number}`].map((v) => {
-      return Number(v.episode_num);
-    });
+    const infrazEpisodes =
+      data.infraz?.episodes[`${number}`].map((v) => {
+        return Number(v.episode_num);
+      }) || [];
 
-    const warezEpisodes = data.warez?.seasons
-      .find((v) => v.season === number)
-      .videos.map((v) => {
-        return Number(v.name);
-      });
+    const warezEpisodes =
+      data.warez?.seasons
+        .find((v) => v.season === number)
+        .videos.map((v) => {
+          return Number(v.name);
+        }) || [];
 
     const episodes = [...infrazEpisodes, ...warezEpisodes];
 
@@ -184,8 +187,9 @@ export class SyncSerieService {
     showId: string,
     data: IShowsApi.Data
   ): Promise<void> {
-    const seasonsWarez = data.warez?.seasons.map((v) => v.season);
-    const seasonsInfraz = data.infraz?.seasons.map((v) => v.season_number);
+    const seasonsWarez = data.warez?.seasons.map((v) => v.season) || [];
+    const seasonsInfraz =
+      data.infraz?.seasons.map((v) => v.season_number) || [];
 
     const seasons = [...seasonsWarez, ...seasonsInfraz];
 
