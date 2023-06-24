@@ -17,6 +17,7 @@ model Show {
   synopsis String?  @db.Text
   poster   String?
   cover    String?
+  slug     String?
   rating   Float?
   runtime  Int?
   imdbId   String?
