@@ -45,8 +45,10 @@ sync_by_warez_ids.process(20, async (job, done) => {
       (warezId) =>
         !dbWarezIds.includes(warezId) && !memoryData.warezIds.includes(warezId)
     );
-    const nextWarezIds = warezIdsToInsert.slice(0, 10);
     const nextWarezId = warezIdsToInsert[0];
+    if (!nextWarezId) {
+      throw new Error("No more warez ids to insert");
+    }
     memoryData.warezIds.push(nextWarezId);
 
     const { media_type, name, original_name } = await tmdbApi.findByImdb(
