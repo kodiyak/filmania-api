@@ -3,9 +3,10 @@ import { LoadShowsQuery } from "../queries/load-shows.query";
 import { db } from "@/lib/db";
 import { ShowMapper } from "../mappers/ShowMapper";
 import kebabCase from "lodash.kebabcase";
+import { ApplicationService } from "@/modules/shared/services/app.service";
 
 export class LoadShows {
-  constructor() {}
+  constructor(private readonly app: ApplicationService) {}
 
   public async load(command: LoadShowsQuery) {
     const { limit = 20, page = 1, query, type } = command.props;
@@ -63,6 +64,7 @@ export class LoadShows {
             title: show.name,
             runtime: show.runtime,
             type: show.type,
+            poster: this.app.withStreamUrl(`/${show.slug}/posters.webp`),
             seasonsCount:
               show.type !== "movie" ? show.seasons.length : undefined,
             episodesCount:

@@ -35,7 +35,7 @@ export const makeLoadShowSourcesHttpController = () => {
 };
 
 export const makeViewShow = () => {
-  return new ViewShow();
+  return new ViewShow(makeApplicationService());
 };
 
 export const makeViewShowHttpController = () => {
@@ -43,7 +43,7 @@ export const makeViewShowHttpController = () => {
 };
 
 export const makeLoadShows = () => {
-  return new LoadShows();
+  return new LoadShows(makeApplicationService());
 };
 
 export const makeLoadShowsHttpController = () => {

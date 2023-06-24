@@ -44,7 +44,10 @@ export class LoadShowSeasons {
 
     return {
       seasons: seasons.map((season) => ({
-        ...SeasonMapper.toListPresentation({ seasonNumber: season.number, showSlug: slug, }),
+        ...SeasonMapper.toListPresentation({
+          seasonNumber: season.number,
+          showSlug: slug,
+        }),
         episodes: season.episodes.map((episode) => ({
           ...EpisodeMapper.toListPresentation({
             episodeNumber: episode.number,
@@ -53,8 +56,8 @@ export class LoadShowSeasons {
             showSlug: slug,
             name: episode.name,
             airDate: episode.airDate,
-            poster: this.app.withApiUrl(
-              `/api/posters/${slug}/${season.number}/${episode.number}.webp`
+            poster: this.app.withStreamUrl(
+              `/${slug}/seasons/${season.number}/episodes/${episode.number}/thumbnail.webp`
             ),
           }),
         })),

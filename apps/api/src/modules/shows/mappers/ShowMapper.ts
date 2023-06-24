@@ -6,9 +6,11 @@ export class ShowMapper {
     runtime,
     seasonsCount,
     type,
+    poster,
   }: {
     slug: string;
     title: string;
+    poster: string;
     runtime?: number;
     type?: string;
     episodesCount?: number;
@@ -19,6 +21,7 @@ export class ShowMapper {
       title,
       runtime,
       type,
+      poster,
       episodesCount,
       seasonsCount,
     };

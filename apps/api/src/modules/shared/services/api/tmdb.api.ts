@@ -6,7 +6,7 @@ type ShowType = "tv" | "movie";
 export class TmdbApi {
   private apiKey = "b72a253cec61fb7595e9254414583e27";
 
-  private client = axios.create({
+  public client = axios.create({
     baseURL: "https://api.themoviedb.org/3",
     params: {
       api_key: "b72a253cec61fb7595e9254414583e27",
@@ -73,6 +73,8 @@ export class TmdbApi {
       })
       .then((res) => res.data);
   }
+
+  public async;
 
   public async getImagesUrls(
     showType: ShowType,

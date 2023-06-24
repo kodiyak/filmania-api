@@ -63,8 +63,8 @@ export class LoadShowSeasonEpisodes {
             showSlug: slug,
             name: episode.name,
             airDate: episode.airDate,
-            poster: this.app.withApiUrl(
-              `/api/posters/${slug}/${seasonNumber}/${episode.number}.webp`
+            poster: this.app.withStreamUrl(
+              `/${slug}/seasons/${seasonNumber}/episodes/${episode.number}/thumbnail.webp`
             ),
           });
         });
