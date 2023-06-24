@@ -94,7 +94,9 @@ export class SyncSerieService {
       );
     }
 
-    const episodes = [...infrazEpisodes, ...warezEpisodes];
+    const episodes = new Collection([...warezEpisodes, ...infrazEpisodes])
+      .unique()
+      .toArray<number>();
 
     for (const episodeNumber of episodes) {
       await this.saveEpisode(seasonId, episodeNumber).catch(() => {
