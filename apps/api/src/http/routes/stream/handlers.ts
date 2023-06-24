@@ -51,7 +51,7 @@ const getEpisodeImages = async ({
     .then((res) => res.data)
     .then((res) => {
       return (
-        res.stills?.map((still) => tmdb.withImage(still.file_path, "w300")) ||
+        res.stills?.map((still) => tmdb.withImage(still.file_path, "w400")) ||
         []
       );
     });
