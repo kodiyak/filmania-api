@@ -5,6 +5,8 @@ export class EpisodeMapper {
     airDate,
     name,
     poster,
+    showSlug,
+    showTitle,
   }: {
     episodeNumber: number;
     seasonNumber: number;
@@ -20,6 +22,8 @@ export class EpisodeMapper {
       poster,
       name,
       airDate,
+      showSlug,
+      showTitle,
     };
   }
 }
