@@ -28,6 +28,8 @@ export class SyncSerieService {
       select: { id: true },
     });
 
+    logger.info(`Show ${show.name}: ${seasons.length} seasons`);
+
     for (const season of seasons) {
       await this.saveEpisodes(season.id, data);
     }
@@ -83,9 +85,11 @@ export class SyncSerieService {
     ) {
       infrazEpisodes = warezEpisodes
         .map((episodeNumber) => {
-          return data.infraz.episodes["1"].find((v) => {
-            return Number(v.episode_num) === episodeNumber;
-          });
+          return data.infraz.episodes["1"]
+            ?.filter((v) => !!v)
+            .find((v) => {
+              return Number(v.episode_num) === episodeNumber;
+            });
         })
         .map((v) => v.episode_num)
         .filter((v) => !!v);
