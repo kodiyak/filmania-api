@@ -56,7 +56,7 @@ export class SyncSerieService {
     });
 
     const infrazEpisodes =
-      data.infraz?.episodes[`${number}`].map((v) => {
+      data.infraz?.episodes[`${number}`]?.map((v) => {
         return Number(v.episode_num);
       }) || [];
 
