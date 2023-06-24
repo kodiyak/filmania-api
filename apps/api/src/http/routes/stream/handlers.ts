@@ -62,7 +62,7 @@ const getEpisodeImages = async ({
 export async function loadShowImage(req: Request, res: Response) {
   const { slug, imageType = "posters" } = req.params;
   const { i: imageIndex = "0", t: showType } = req.query;
-  const { tmdbId, type } = await db.show.findFirstOrThrow({
+  const { tmdbId, type, cover } = await db.show.findFirstOrThrow({
     where: {
       slug,
       type: showType as string,
@@ -70,6 +70,7 @@ export async function loadShowImage(req: Request, res: Response) {
     select: {
       tmdbId: true,
       type: true,
+      cover: true,
     },
   });
 
@@ -78,7 +79,7 @@ export async function loadShowImage(req: Request, res: Response) {
     tmdbId,
     typeImage: imageType,
   });
-  const image = images[Number(imageIndex)] ?? images[0];
+  const image = images[Number(imageIndex)] ?? images[0] ?? cover;
 
   try {
     res.redirect(image);
