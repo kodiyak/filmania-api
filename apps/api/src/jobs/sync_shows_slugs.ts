@@ -20,6 +20,9 @@ export const sync_shows_slugs = new Bull<JobProps>("sync_shows_slugs", {
 
 sync_shows_slugs.process(1, async (job, done) => {
   const {} = job.data;
+  logger.info(
+    `Count [${sync_shows_slugs.name}]: ${await sync_shows_slugs.count()}`
+  );
 
   try {
     // await db.$transaction(async (trx) => {

@@ -27,6 +27,9 @@ export const sync_by_warez_ids = new Bull<JobProps>("sync_by_warez_ids", {
 
 sync_by_warez_ids.process(20, async (job, done) => {
   const {} = job.data;
+  logger.info(
+    `Count [${sync_by_warez_ids.name}]: ${await sync_by_warez_ids.count()}`
+  );
 
   try {
     // await db.$transaction(async (trx) => {

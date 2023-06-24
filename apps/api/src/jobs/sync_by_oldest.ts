@@ -20,6 +20,9 @@ export const sync_by_oldest = new Bull<JobProps>("sync_by_oldest", {
 
 sync_by_oldest.process(async (job, done) => {
   const {} = job.data;
+  logger.info(
+    `Count [${sync_by_oldest.name}]: ${await sync_by_oldest.count()}`
+  );
 
   try {
     // await db.$transaction(async (trx) => {

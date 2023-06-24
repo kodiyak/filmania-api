@@ -22,6 +22,9 @@ export default async function run() {
   if (!envConfig.isDev) {
     await sync_by_warez_ids.add({});
     await sync_by_oldest.add({});
+  } else {
+    await reset(sync_by_warez_ids);
+    await reset(sync_by_oldest);
   }
 
   await sync_shows_slugs.add({});
