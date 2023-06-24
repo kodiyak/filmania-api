@@ -8,6 +8,8 @@ export class EpisodeMapper {
   }: {
     episodeNumber: number;
     seasonNumber: number;
+    showTitle: string;
+    showSlug: string;
     poster?: string;
     name?: string;
     airDate?: Date;

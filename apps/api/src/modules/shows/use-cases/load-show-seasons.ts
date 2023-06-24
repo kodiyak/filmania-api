@@ -11,6 +11,12 @@ export class LoadShowSeasons {
   public async load(command: LoadShowSeasonsQuery) {
     const { slug, maxEpisodes } = command.props;
 
+    const show = await db.show.findFirstOrThrow({
+      where: { slug },
+      select: {
+        name: true,
+      },
+    });
     const seasons = await db.season.findMany({
       where: {
         show: {
@@ -43,6 +49,8 @@ export class LoadShowSeasons {
           ...EpisodeMapper.toListPresentation({
             episodeNumber: episode.number,
             seasonNumber: season.number,
+            showTitle: show.name,
+            showSlug: slug,
             name: episode.name,
             airDate: episode.airDate,
             poster: this.app.withApiUrl(

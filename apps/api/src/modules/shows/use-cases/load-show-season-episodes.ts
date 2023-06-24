@@ -18,6 +18,13 @@ export class LoadShowSeasonEpisodes {
       range,
     } = command.props;
 
+    const show = await db.show.findFirstOrThrow({
+      where: { slug },
+      select: {
+        name: true,
+      },
+    });
+
     const where: Prisma.EpisodeWhereInput = {
       season: {
         number: seasonNumber,
@@ -52,6 +59,8 @@ export class LoadShowSeasonEpisodes {
           return EpisodeMapper.toListPresentation({
             episodeNumber: episode.number,
             seasonNumber: seasonNumber,
+            showTitle: show.name,
+            showSlug: slug,
             name: episode.name,
             airDate: episode.airDate,
             poster: this.app.withApiUrl(
