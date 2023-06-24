@@ -3,7 +3,13 @@ name: Run Deploy (Production)
 on:
   push:
     branches: [main]
-    paths: ["apps/api/**", "apps/api/**", ".github/workflows/**"]
+    paths:
+      [
+        "apps/api/**",
+        "apps/api/**",
+        "Dockerfile.api.backend",
+        ".github/workflows/**",
+      ]
 
 env:
   ENV_API: ${{ vars.ENV }}
