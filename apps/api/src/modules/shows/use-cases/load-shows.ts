@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { LoadShowsQuery } from "../queries/load-shows.query";
 import { db } from "@/lib/db";
 import { ShowMapper } from "../mappers/ShowMapper";
+import kebabCase from "lodash.kebabcase";
 
 export class LoadShows {
   constructor() {}
@@ -16,6 +17,18 @@ export class LoadShows {
         {
           name: {
             contains: query,
+            mode: "insensitive",
+          },
+        },
+        {
+          slug: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+        {
+          slug: {
+            contains: kebabCase(query),
             mode: "insensitive",
           },
         },
