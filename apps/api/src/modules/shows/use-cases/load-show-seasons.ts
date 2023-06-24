@@ -44,7 +44,7 @@ export class LoadShowSeasons {
 
     return {
       seasons: seasons.map((season) => ({
-        ...SeasonMapper.toListPresentation({ seasonNumber: season.number }),
+        ...SeasonMapper.toListPresentation({ seasonNumber: season.number, showSlug: slug, }),
         episodes: season.episodes.map((episode) => ({
           ...EpisodeMapper.toListPresentation({
             episodeNumber: episode.number,
