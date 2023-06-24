@@ -19,7 +19,8 @@ export const sync_by_warez_ids = new Bull<JobProps>("sync_by_warez_ids", {
     removeOnComplete: true,
     removeOnFail: true,
     repeat: {
-      cron: "* * * * *",
+      // cron: "* * * * *",
+      every: 1000 * 60 * 1,
     },
   },
 });

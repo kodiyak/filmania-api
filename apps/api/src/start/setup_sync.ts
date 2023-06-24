@@ -19,11 +19,10 @@ export default async function run() {
   await reset(sync_by_warez_ids);
   await reset(sync_shows_slugs);
 
-  await sync_by_oldest.add({});
-
-  // if (!envConfig.isDev) {
-  //   await sync_by_warez_ids.add({});
-  // }
+  if (!envConfig.isDev) {
+    await sync_by_warez_ids.add({});
+    await sync_by_oldest.add({});
+  }
 
   await sync_shows_slugs.add({});
 }
