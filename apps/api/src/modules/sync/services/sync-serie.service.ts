@@ -53,10 +53,22 @@ export class SyncSerieService {
     seasonId: string,
     data: IShowsApi.Data
   ): Promise<void> {
-    const { number } = await db.season.findUniqueOrThrow({
+    const {
+      number,
+      show: { name },
+    } = await db.season.findUniqueOrThrow({
       where: { id: seasonId },
-      select: { number: true },
+      select: {
+        number: true,
+        show: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
+
+    logger.info(`Season ${number} "${name}": Saving episodes`);
 
     let infrazEpisodes: number[] =
       data.infraz?.episodes[`${number}`]?.map((v) => {
@@ -70,8 +82,12 @@ export class SyncSerieService {
           return Number(v.name);
         }) || [];
 
-    logger.info(`Season ${number}: Warez ${warezEpisodes.length} episodes`);
-    logger.info(`Season ${number}: Infraz ${infrazEpisodes.length} episodes`);
+    logger.info(
+      `Season ${number} "${name}": Warez ${warezEpisodes.length} episodes`
+    );
+    logger.info(
+      `Season ${number} "${name}": Infraz ${infrazEpisodes.length} episodes`
+    );
 
     if (infrazEpisodes.length > warezEpisodes.length) {
       infrazEpisodes = [];
@@ -91,6 +107,7 @@ export class SyncSerieService {
               return Number(v.episode_num) === episodeNumber;
             });
         })
+        .filter((v) => !!v)
         .map((v) => v.episode_num)
         .filter((v) => !!v);
       logger.info(
