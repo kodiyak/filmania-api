@@ -3,7 +3,7 @@ name: Run Deploy (Production)
 on:
   push:
     branches: [main]
-    paths: ["apps/api/**", "apps/consumers/**", ".github/workflows/**"]
+    paths: ["apps/api/**", "apps/api/**", ".github/workflows/**"]
 
 env:
   ENV_API: ${{ vars.ENV }}
@@ -32,13 +32,13 @@ jobs:
       - name: Configure Deploy Directory
         run: |
           ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}"
-          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && rm -rf .env.consumers docker-compose.yaml images scripts"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && rm -rf .env.api docker-compose.yaml images scripts"
           ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}/scripts/api"
           ssh ${{ env.USER }}@${{ env.HOST }} "mkdir -p ${{ env.SERVER_DIRECTORY }}/images"
       - name: Send Scripts
         run: |
           scp docker-compose.yaml ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}
-          scp -r apps/consumers/scripts/production/* ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}/scripts/api
+          scp -r apps/api/scripts/production/* ${{ env.USER }}@${{ env.HOST }}:${{ env.SERVER_DIRECTORY }}/scripts/api
       - name: Setup VPS and NGINX
         run: |
           ssh ${{ env.USER }}@${{ env.HOST }} "bash ${{ env.SERVER_DIRECTORY }}/scripts/api/server/setup-vps.bash"
@@ -54,7 +54,7 @@ jobs:
       - name: Build Image
         run: |
           echo "${{ env.ENV_API }}" > apps/api/.env
-          docker compose -f docker-compose.build.yaml build consumers
+          docker compose -f docker-compose.build.yaml build api
       - name: Export images to TAR
         run: |
           mkdir -p exported_images
@@ -83,7 +83,7 @@ jobs:
           ssh-keyscan -t rsa ${{ env.HOST }} >> ~/.ssh/known_hosts
       - name: Configure Env
         run: |
-          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && echo '${{ env.ENV_API }}' > .env.consumers"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && echo '${{ env.ENV_API }}' > .env.api"
       - name: Run Docker Compose UP
         run: |
           ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker load -i images/api.tar"
@@ -91,6 +91,6 @@ jobs:
           ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && service nginx restart"
           ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && service nginx reload"
           ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && sleep 10"
-          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose logs consumers"
+          ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose logs api"
           ssh ${{ env.USER }}@${{ env.HOST }} "cd ${{ env.SERVER_DIRECTORY }} && docker compose ps"
           ssh ${{ env.USER }}@${{ env.HOST }} "docker system prune -f"
