@@ -71,7 +71,7 @@ sync_by_warez_ids.process(20, async (job, done) => {
       (warezId) => warezId !== nextWarezId
     );
 
-    logger.info(`Warez "${name || original_name}" Finished`);
+    logger.info(`Warez "${name || original_name || nextWarezId}" Finished`);
     logger.info(`[${nextWarezId}] ------------------------`);
 
     done(null, { success: true });

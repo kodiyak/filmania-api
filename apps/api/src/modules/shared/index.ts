@@ -3,6 +3,7 @@ import { InfrazApi } from "./services/api/infraz.api";
 import { ShowsApi } from "./services/api/shows.api";
 import { TmdbApi } from "./services/api/tmdb.api";
 import { WarezApi } from "./services/api/warez.api";
+import { ApplicationService } from "./services/app.service";
 import { BrowserHelperService } from "./services/helpers/browser-helper.service";
 import { CacheHelperService } from "./services/helpers/cache-helper.service";
 
@@ -14,6 +15,10 @@ export const makeBrowserHelperService = () => {
 
 export const makeCacheHelperService = () => {
   return new CacheHelperService();
+};
+
+export const makeApplicationService = () => {
+  return new ApplicationService();
 };
 
 export const makeTmdbApi = () => {

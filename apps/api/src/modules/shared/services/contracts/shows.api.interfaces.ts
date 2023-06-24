@@ -335,8 +335,12 @@ export namespace IShowsEpisodeApi {
     duration_secs: number;
     duration: string;
     movie_image: string;
-    video: any[];
-    audio: any[];
+    video: Record<string, any>;
+    audio: {
+      tags?: {
+        language?: string;
+      };
+    };
     bitrate: number;
     rating: number;
     season: string;

@@ -5,4 +5,5 @@ export const envConfig = {
   port: process.env.PORT,
   redisHost: process.env.REDIS_HOST,
   redisPort: process.env.REDIS_PORT,
+  apiUrl: process.env.API_URL,
 };
