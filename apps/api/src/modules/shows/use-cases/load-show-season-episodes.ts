@@ -14,6 +14,8 @@ export class LoadShowSeasonEpisodes {
       page = 1,
       limit = 20,
       sort = "desc",
+      number,
+      range,
     } = command.props;
 
     const where: Prisma.EpisodeWhereInput = {
@@ -24,6 +26,17 @@ export class LoadShowSeasonEpisodes {
         },
       },
     };
+
+    if (number) {
+      where.number = number;
+    }
+
+    if (range) {
+      where.number = {
+        gte: Number(range[0]),
+        lte: Number(range[1]),
+      };
+    }
 
     const episodes = await db.episode
       .findMany({

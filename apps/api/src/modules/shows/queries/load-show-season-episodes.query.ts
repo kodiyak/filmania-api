@@ -6,4 +6,6 @@ export class LoadShowSeasonEpisodesQuery extends Query<{
   sort?: "desc" | "asc";
   page?: number;
   limit?: number;
+  number?: number;
+  range?: string[];
 }> {}
