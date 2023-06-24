@@ -1,4 +1,5 @@
 import {
+  makeLoadShowSeasonsHttpController,
   makeLoadShowSourcesHttpController,
   makeLoadShowsHttpController,
   makeViewShowHttpController,
@@ -13,6 +14,7 @@ const routes = async (router: Router) => {
     "/:slug/seasons/:season/episodes/:episode",
     makeLoadShowSourcesHttpController().load
   );
+  router.get(`/:slug/seasons`, makeLoadShowSeasonsHttpController().load);
 };
 
 export default routes;

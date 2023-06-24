@@ -9,13 +9,6 @@ export class ViewShow {
 
     const show = await db.show.findFirstOrThrow({
       where: { slug },
-      include: {
-        seasons: {
-          include: {
-            episodes: true,
-          },
-        },
-      },
     });
 
     return {

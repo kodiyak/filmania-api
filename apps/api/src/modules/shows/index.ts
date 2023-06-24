@@ -6,6 +6,17 @@ import { LoadShowSourcesHttpController } from "./controllers/load-show-sources.h
 import { LoadShowSources } from "./use-cases/load-show-sources";
 import { makeApplicationService, makeShowsApi } from "../shared";
 
+import { LoadShowSeasonsHttpController } from "./controllers/load-show-seasons.http.controller";
+import { LoadShowSeasons } from "./use-cases/load-show-seasons";
+
+export const makeLoadShowSeasons = () => {
+  return new LoadShowSeasons(makeApplicationService());
+};
+
+export const makeLoadShowSeasonsHttpController = () => {
+  return new LoadShowSeasonsHttpController(makeLoadShowSeasons());
+};
+
 export const makeLoadShowSources = () => {
   return new LoadShowSources(makeShowsApi(), makeApplicationService());
 };
