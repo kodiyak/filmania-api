@@ -10,6 +10,7 @@ export class LoadShowSeasonEpisodes {
   public async load(command: LoadShowSeasonEpisodesQuery) {
     const {
       slug,
+      type,
       season: seasonNumber,
       page = 1,
       limit = 20,
@@ -19,9 +20,10 @@ export class LoadShowSeasonEpisodes {
     } = command.props;
 
     const show = await db.show.findFirstOrThrow({
-      where: { slug },
+      where: { slug, type },
       select: {
         name: true,
+        type: true,
       },
     });
 
@@ -64,7 +66,7 @@ export class LoadShowSeasonEpisodes {
             name: episode.name,
             airDate: episode.airDate,
             poster: this.app.withStreamUrl(
-              `/${slug}/seasons/${seasonNumber}/episodes/${episode.number}/thumbnail.webp`
+              `/${show.type}/${slug}/seasons/${seasonNumber}/episodes/${episode.number}/thumbnail.webp`
             ),
           });
         });

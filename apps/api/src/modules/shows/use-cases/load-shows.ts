@@ -64,7 +64,9 @@ export class LoadShows {
             title: show.name,
             runtime: show.runtime,
             type: show.type,
-            poster: this.app.withStreamUrl(`/${show.slug}/posters.webp`),
+            poster: this.app.withStreamUrl(
+              `/${show.type}/${show.slug}/posters.webp`
+            ),
             seasonsCount:
               show.type !== "movie" ? show.seasons.length : undefined,
             episodesCount:

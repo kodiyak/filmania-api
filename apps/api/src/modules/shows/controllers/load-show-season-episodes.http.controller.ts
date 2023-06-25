@@ -10,10 +10,11 @@ export class LoadShowSeasonEpisodesHttpController {
 
   public load: RequestHandler = async (req, res) => {
     try {
-      const { slug, season } = req.params;
+      const { slug, season, type } = req.params;
       const { page, limit, sort, number, range } = req.query;
       const command = new LoadShowSeasonEpisodesQuery({
         slug,
+        type,
         season: Number(season),
         page: page ? Number(page) : undefined,
         limit: limit ? Number(limit) : undefined,

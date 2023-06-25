@@ -6,18 +6,22 @@ export class ViewShow {
   constructor(private readonly app: ApplicationService) {}
 
   public async view(command: ViewShowQuery) {
-    const { slug } = command.props;
+    const { slug, type } = command.props;
 
     const show = await db.show.findFirstOrThrow({
-      where: { slug },
+      where: { slug, type },
     });
 
     return {
       show: {
         ...show,
-        poster: this.app.withStreamUrl(`/${show.slug}/posters.webp`),
-        cover: this.app.withStreamUrl(`/${show.slug}/backdrops.webp`),
-        logo: this.app.withStreamUrl(`/${show.slug}/logos.webp`),
+        poster: this.app.withStreamUrl(
+          `/${show.type}/${show.slug}/posters.webp`
+        ),
+        cover: this.app.withStreamUrl(
+          `/${show.type}/${show.slug}/backdrops.webp`
+        ),
+        logo: this.app.withStreamUrl(`/${show.type}/${show.slug}/logos.webp`),
       },
     };
   }

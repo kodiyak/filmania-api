@@ -9,15 +9,15 @@ import { Router } from "express";
 
 const routes = async (router: Router) => {
   router.get("/", makeLoadShowsHttpController().load);
-  router.get("/:slug", makeViewShowHttpController().view);
-  router.get("/:slug/sources", makeLoadShowSourcesHttpController().load);
-  router.get(`/:slug/seasons`, makeLoadShowSeasonsHttpController().load);
+  router.get("/:type/:slug", makeViewShowHttpController().view);
+  router.get("/:type/:slug/sources", makeLoadShowSourcesHttpController().load);
+  router.get(`/:type/:slug/seasons`, makeLoadShowSeasonsHttpController().load);
   router.get(
-    `/:slug/seasons/:season/episodes`,
+    `/:type/:slug/seasons/:season/episodes`,
     makeLoadShowSeasonEpisodesHttpController().load
   );
   router.get(
-    "/:slug/seasons/:season/episodes/:episode",
+    "/:type/:slug/seasons/:season/episodes/:episode",
     makeLoadShowSourcesHttpController().load
   );
 };

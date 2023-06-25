@@ -8,10 +8,11 @@ export class LoadShowSeasonsHttpController {
 
   public load: RequestHandler = async (req, res) => {
     try {
-      const { slug } = req.params;
+      const { slug, type } = req.params;
       const { maxEpisodes } = req.query;
       const command = new LoadShowSeasonsQuery({
         slug,
+        type,
         maxEpisodes: maxEpisodes ? parseInt(maxEpisodes as string) : undefined,
       });
 

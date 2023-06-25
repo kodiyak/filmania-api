@@ -60,8 +60,8 @@ const getEpisodeImages = async ({
 };
 
 export async function loadShowImage(req: Request, res: Response) {
-  const { slug, imageType = "posters" } = req.params;
-  const { i: imageIndex = "0", t: showType } = req.query;
+  const { slug, type: showType, imageType = "posters" } = req.params;
+  const { i: imageIndex = "0" } = req.query;
   const { tmdbId, type, cover } = await db.show.findFirstOrThrow({
     where: {
       slug,
@@ -89,14 +89,12 @@ export async function loadShowImage(req: Request, res: Response) {
 }
 
 export async function loadEpisodeImage(req: Request, res: Response) {
-  const { slug, episodeNumber, seasonNumber } = req.params;
+  const { slug, type: showType, episodeNumber, seasonNumber } = req.params;
   const { i: imageIndex = "0" } = req.query;
   const { tmdbId } = await db.show.findFirstOrThrow({
     where: {
       slug,
-      type: {
-        in: ["serie", "anime"],
-      },
+      type: showType,
     },
     select: {
       tmdbId: true,

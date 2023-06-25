@@ -8,12 +8,13 @@ export class LoadShowSourcesHttpController {
 
   public load: RequestHandler = async (req, res) => {
     try {
-      const { slug, season, episode } = req.params;
+      const { slug, season, episode, type } = req.params;
       const {} = req.body;
       const command = new LoadShowSourcesQuery({
         slug,
         episode: episode ? parseInt(episode) : undefined,
         season: season ? parseInt(season) : undefined,
+        type,
       });
 
       const result = await this.loadShowSources.load(command);

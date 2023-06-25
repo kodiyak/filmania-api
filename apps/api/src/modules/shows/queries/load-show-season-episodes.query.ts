@@ -8,4 +8,5 @@ export class LoadShowSeasonEpisodesQuery extends Query<{
   limit?: number;
   number?: number;
   range?: string[];
+  type: string;
 }> {}

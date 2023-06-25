@@ -9,12 +9,13 @@ export class LoadShowSeasons {
   constructor(private readonly app: ApplicationService) {}
 
   public async load(command: LoadShowSeasonsQuery) {
-    const { slug, maxEpisodes } = command.props;
+    const { slug, maxEpisodes, type } = command.props;
 
     const show = await db.show.findFirstOrThrow({
-      where: { slug },
+      where: { slug, type },
       select: {
         name: true,
+        type: true,
       },
     });
     const seasons = await db.season.findMany({
@@ -57,7 +58,7 @@ export class LoadShowSeasons {
             name: episode.name,
             airDate: episode.airDate,
             poster: this.app.withStreamUrl(
-              `/${slug}/seasons/${season.number}/episodes/${episode.number}/thumbnail.webp`
+              `/${show.type}/${slug}/seasons/${season.number}/episodes/${episode.number}/thumbnail.webp`
             ),
           }),
         })),

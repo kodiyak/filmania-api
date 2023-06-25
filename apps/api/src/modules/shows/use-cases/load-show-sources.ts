@@ -18,12 +18,13 @@ export class LoadShowSources {
   public async load(command: LoadShowSourcesQuery) {
     const {
       slug,
+      type,
       episode: episodeNumber,
       season: seasonNumber,
     } = command.props;
 
     const show = await db.show.findFirstOrThrow({
-      where: { slug },
+      where: { slug, type },
     });
 
     if (show.type !== "movie" && (!episodeNumber || !seasonNumber)) {

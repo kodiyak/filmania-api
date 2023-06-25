@@ -8,8 +8,8 @@ export class ViewShowHttpController {
 
   public view: RequestHandler = async (req, res) => {
     try {
-      const { slug } = req.params;
-      const command = new ViewShowQuery({ slug });
+      const { slug, type } = req.params;
+      const command = new ViewShowQuery({ slug, type });
 
       const result = await this.viewShow.view(command);
 
