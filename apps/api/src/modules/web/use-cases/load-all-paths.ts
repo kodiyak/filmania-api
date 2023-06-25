@@ -12,12 +12,15 @@ export class LoadAllPaths {
       select: {
         slug: true,
         type: true,
+        updatedAt: true,
         seasons: {
           select: {
             number: true,
+            updatedAt: true,
             episodes: {
               select: {
                 number: true,
+                updatedAt: true,
               },
             },
           },
@@ -25,20 +28,30 @@ export class LoadAllPaths {
       },
     });
 
-    const paths: string[] = [];
+    const paths: Array<{
+      url: string;
+      updatedAt: Date;
+    }> = [];
 
     for (const show of items) {
       const slugType = show.type === "movie" ? "filme" : show.type;
       const basePath = `/assistir/${slugType}/${show.slug}`;
-      paths.push(basePath);
+      paths.push({
+        url: basePath,
+        updatedAt: show.updatedAt,
+      });
 
       for (const season of show.seasons) {
-        paths.push(`${basePath}/${season.number}-temporada`);
+        paths.push({
+          url: `${basePath}/${season.number}-temporada`,
+          updatedAt: season.updatedAt,
+        });
 
         for (const episode of season.episodes) {
-          paths.push(
-            `${basePath}/${season.number}-temporada/episodio-${episode.number}`
-          );
+          paths.push({
+            url: `${basePath}/${season.number}-temporada/episodio-${episode.number}`,
+            updatedAt: episode.updatedAt,
+          });
         }
       }
     }
